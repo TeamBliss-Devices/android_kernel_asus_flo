@@ -100,13 +100,13 @@ static struct msm_cam_clk_info gemini_imem_clk_info[] = {
 };
 
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-static struct ion_client *msm_gemini_ion_client_create(unsigned int heap_mask,
+static struct ion_client *msm_gemini_ion_client_create(unsigned int heap_id_mask,
 		  const char *name)
 {
-	return msm_ion_client_create(heap_mask, name);
+	return msm_ion_client_create(heap_id_mask, name);
 }
 #else
-static struct ion_client *msm_gemini_ion_client_create(unsigned int heap_mask,
+static struct ion_client *msm_gemini_ion_client_create(unsigned int heap_id_mask,
 		  const char *name)
 {
 	return NULL;

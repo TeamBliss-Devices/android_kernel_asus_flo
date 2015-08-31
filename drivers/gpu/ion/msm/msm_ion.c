@@ -99,10 +99,10 @@ static struct ion_heap_desc ion_heap_meta[] = {
 	},
 };
 
-struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+struct ion_client *msm_ion_client_create(unsigned int heap_id_mask,
 					const char *name)
 {
-	return ion_client_create(idev, heap_mask, name);
+	return ion_client_create(idev, heap_id_mask, name);
 }
 EXPORT_SYMBOL(msm_ion_client_create);
 

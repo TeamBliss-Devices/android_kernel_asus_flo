@@ -65,7 +65,7 @@ struct ion_device {
  * @dev:		backpointer to ion device
  * @handles:		an rb tree of all the handles in this client
  * @lock:		lock protecting the tree of handles
- * @heap_mask:		mask of all supported heaps
+ * @heap_id_mask:		mask of all supported heaps
  * @name:		used for debugging
  * @task:		used for debugging
  *
@@ -78,7 +78,7 @@ struct ion_client {
 	struct ion_device *dev;
 	struct rb_root handles;
 	struct mutex lock;
-	unsigned int heap_mask;
+	unsigned int heap_id_mask;
 	char *name;
 	struct task_struct *task;
 	pid_t pid;
@@ -396,7 +396,7 @@ static void ion_handle_add(struct ion_client *client, struct ion_handle *handle)
 }
 
 struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
-			     size_t align, unsigned int heap_mask,
+			     size_t align, unsigned int heap_id_mask,
 			     unsigned int flags)
 {
 	struct rb_node *n;
@@ -425,10 +425,10 @@ struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
 	for (n = rb_first(&dev->heaps); n != NULL; n = rb_next(n)) {
 		struct ion_heap *heap = rb_entry(n, struct ion_heap, node);
 		/* if the client doesn't support this heap type */
-		if (!((1 << heap->type) & client->heap_mask))
+		if (!((1 << heap->type) & client->heap_id_mask))
 			continue;
 		/* if the caller didn't specify this heap type */
-		if (!((1 << heap->id) & heap_mask))
+		if (!((1 << heap->id) & heap_id_mask))
 			continue;
 		/* Do not allow un-secure heap if secure is specified */
 		if (secure_allocation &&
@@ -462,7 +462,7 @@ struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
 		pr_debug("ION is unable to allocate 0x%x bytes (alignment: "
 			 "0x%x) from heap(s) %sfor client %s with heap "
 			 "mask 0x%x\n",
-			len, align, dbg_str, client->name, client->heap_mask);
+			len, align, dbg_str, client->name, client->heap_id_mask);
 		return ERR_PTR(PTR_ERR(buffer));
 	}
 
@@ -914,7 +914,7 @@ static const struct file_operations debug_client_fops = {
 };
 
 struct ion_client *ion_client_create(struct ion_device *dev,
-				     unsigned int heap_mask,
+				     unsigned int heap_id_mask,
 				     const char *name)
 {
 	struct ion_client *client;
@@ -964,7 +964,7 @@ struct ion_client *ion_client_create(struct ion_device *dev,
 		strlcpy(client->name, name, name_len+1);
 	}
 
-	client->heap_mask = heap_mask;
+	client->heap_id_mask = heap_id_mask;
 	client->task = task;
 	client->pid = pid;
 
@@ -1327,7 +1327,7 @@ static long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&data, (void __user *)arg, sizeof(data)))
 			return -EFAULT;
 		data.handle = ion_alloc(client, data.len, data.align,
-					     data.heap_mask, data.flags);
+					     data.heap_id_mask, data.flags);
 
 		if (IS_ERR(data.handle))
 			return PTR_ERR(data.handle);
