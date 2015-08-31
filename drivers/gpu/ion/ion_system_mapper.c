@@ -30,7 +30,7 @@ static void *ion_kernel_mapper_map(struct ion_mapper *mapper,
 				   struct ion_buffer *buffer,
 				   struct ion_mapping **mapping)
 {
-	if (!((1 << buffer->heap->type) & mapper->heap_mask)) {
+	if (!((1 << buffer->heap->type) & mapper->heap_id_mask)) {
 		pr_err("%s: attempting to map an unsupported heap\n", __func__);
 		return ERR_PTR(-EINVAL);
 	}
@@ -43,7 +43,7 @@ static void ion_kernel_mapper_unmap(struct ion_mapper *mapper,
 				    struct ion_buffer *buffer,
 				    struct ion_mapping *mapping)
 {
-	if (!((1 << buffer->heap->type) & mapper->heap_mask))
+	if (!((1 << buffer->heap->type) & mapper->heap_id_mask))
 		pr_err("%s: attempting to unmap an unsupported heap\n",
 		       __func__);
 }
@@ -52,7 +52,7 @@ static void *ion_kernel_mapper_map_kernel(struct ion_mapper *mapper,
 					struct ion_buffer *buffer,
 					struct ion_mapping *mapping)
 {
-	if (!((1 << buffer->heap->type) & mapper->heap_mask)) {
+	if (!((1 << buffer->heap->type) & mapper->heap_id_mask)) {
 		pr_err("%s: attempting to unmap an unsupported heap\n",
 		       __func__);
 		return ERR_PTR(-EINVAL);
@@ -103,7 +103,7 @@ struct ion_mapper *ion_system_mapper_create(void)
 		return ERR_PTR(-ENOMEM);
 	mapper->type = ION_SYSTEM_MAPPER;
 	mapper->ops = &ops;
-	mapper->heap_mask = (1 << ION_HEAP_VMALLOC) | (1 << ION_HEAP_KMALLOC);
+	mapper->heap_id_mask = (1 << ION_HEAP_VMALLOC) | (1 << ION_HEAP_KMALLOC);
 	return mapper;
 }
 

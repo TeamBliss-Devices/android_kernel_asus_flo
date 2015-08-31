@@ -139,21 +139,21 @@ void ion_reserve(struct ion_platform_data *data);
 /**
  * ion_client_create() -  allocate a client and returns it
  * @dev:	the global ion device
- * @heap_mask:	mask of heaps this client can allocate from
+ * @heap_id_mask:	mask of heaps this client can allocate from
  * @name:	used for debugging
  */
 struct ion_client *ion_client_create(struct ion_device *dev,
-				     unsigned int heap_mask, const char *name);
+				     unsigned int heap_id_mask, const char *name);
 
 /**
  *  msm_ion_client_create - allocate a client using the ion_device specified in
  *				drivers/gpu/ion/msm/msm_ion.c
  *
- * heap_mask and name are the same as ion_client_create, return values
+ * heap_id_mask and name are the same as ion_client_create, return values
  * are the same as ion_client_create.
  */
 
-struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+struct ion_client *msm_ion_client_create(unsigned int heap_id_mask,
 					const char *name);
 
 /**
@@ -171,7 +171,7 @@ void ion_client_destroy(struct ion_client *client);
  * @len:	size of the allocation
  * @align:	requested allocation alignment, lots of hardware blocks have
  *		alignment requirements of some kind
- * @heap_mask:	mask of heaps to allocate from, if multiple bits are set
+ * @heap_id_mask:	mask of heaps to allocate from, if multiple bits are set
  *		heaps will be tried in order from lowest to highest order bit
  * @flags:	heap flags, the low 16 bits are consumed by ion, the high 16
  *		bits are passed on to the respective heap and can be heap
@@ -181,7 +181,7 @@ void ion_client_destroy(struct ion_client *client);
  * an opaque handle to it.
  */
 struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
-			     size_t align, unsigned int heap_mask,
+			     size_t align, unsigned int heap_id_mask,
 			     unsigned int flags);
 
 /**
@@ -385,12 +385,12 @@ static inline void ion_reserve(struct ion_platform_data *data)
 }
 
 static inline struct ion_client *ion_client_create(struct ion_device *dev,
-				     unsigned int heap_mask, const char *name)
+				     unsigned int heap_id_mask, const char *name)
 {
 	return ERR_PTR(-ENODEV);
 }
 
-static inline struct ion_client *msm_ion_client_create(unsigned int heap_mask,
+static inline struct ion_client *msm_ion_client_create(unsigned int heap_id_mask,
 					const char *name)
 {
 	return ERR_PTR(-ENODEV);
@@ -400,7 +400,7 @@ static inline void ion_client_destroy(struct ion_client *client) { }
 
 static inline struct ion_handle *ion_alloc(struct ion_client *client,
 					size_t len, size_t align,
-					unsigned int heap_mask,
+					unsigned int heap_id_mask,
 					unsigned int flags)
 {
 	return ERR_PTR(-ENODEV);
@@ -500,7 +500,7 @@ static inline int msm_ion_do_cache_op(struct ion_client *client,
  * struct ion_allocation_data - metadata passed from userspace for allocations
  * @len:	size of the allocation
  * @align:	required alignment of the allocation
- * @heap_mask:	mask of heaps to allocate from
+ * @heap_id_mask:	mask of heaps to allocate from
  * @flags:	flags passed to heap
  * @handle:	pointer that will be populated with a cookie to use to refer
  *		to this allocation
@@ -510,7 +510,7 @@ static inline int msm_ion_do_cache_op(struct ion_client *client,
 struct ion_allocation_data {
 	size_t len;
 	size_t align;
-	unsigned int heap_mask;
+	unsigned int heap_id_mask;
 	unsigned int flags;
 	struct ion_handle *handle;
 };
